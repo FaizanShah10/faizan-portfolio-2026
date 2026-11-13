@@ -1,0 +1,787 @@
+@import "tailwindcss";
+
+
+:root {
+  --color-bg: #0b0b0e;
+  --color-bg-elevated: #141418;
+  --color-bg-elevated-2: #1b1b21;
+  --color-border: rgba(245, 243, 247, 0.1);
+  --color-border-strong: rgba(245, 243, 247, 0.18);
+  --color-ink: #f4f2f7;
+  --color-ink-muted: #96939f;
+  --color-ink-faint: #605e69;
+  --color-accent: #c2a4ff;
+  --color-accent-soft: rgba(194, 164, 255, 0.12);
+  --color-accent-ink: #1a1522;
+  --color-status: #4ade80;
+  --color-status-soft: rgba(74, 222, 128, 0.14);
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-bg-elevated: var(--color-bg-elevated);
+  --color-bg-elevated-2: var(--color-bg-elevated-2);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-ink-faint: var(--color-ink-faint);
+  --color-accent: var(--color-accent);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-accent-ink: var(--color-accent-ink);
+  --color-status: var(--color-status);
+  --color-status-soft: var(--color-status-soft);
+
+  --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Times New Roman", ui-serif, Georgia, serif;
+}
+
+/* ------------------------------------------------------------------ *
+ * Motion tokens: the single source of timing, easing and distance.
+ * Every reveal, hover and scroll-linked effect below reads from these.
+ * ------------------------------------------------------------------ */
+:root {
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-dur: 700ms;
+  --motion-dur-ui: 220ms;
+  --motion-stagger: 70ms;
+  --motion-dist: 20px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --motion-dur: 560ms;
+    --motion-stagger: 50ms;
+    --motion-dist: 14px;
+  }
+}
+
+html {
+  /* Native smooth scrolling: no wheel hijacking, no added damping. */
+  scroll-behavior: smooth;
+  /* Clears the sticky nav and leaves breathing room above section headings. */
+  scroll-padding-top: 2rem;
+  color-scheme: dark;
+}
+
+/* Taller than the nav, so "back to top" clamps at the true top of the page. */
+#top {
+  scroll-margin-top: 6rem;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+/* Subtle grain texture so the charcoal background doesn't feel flat/banded. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Trails the cursor, under the nav. Stays invisible until CursorGlow first moves it. */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 32rem;
+  height: 32rem;
+  pointer-events: none;
+  opacity: 0;
+  /* Eased stops, so the light tapers away with no visible rim. */
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-accent) 11%, transparent),
+    color-mix(in srgb, var(--color-accent) 9.4%, transparent) 20%,
+    color-mix(in srgb, var(--color-accent) 5.8%, transparent) 40%,
+    color-mix(in srgb, var(--color-accent) 2.6%, transparent) 60%,
+    color-mix(in srgb, var(--color-accent) 0.7%, transparent) 80%,
+    transparent
+  );
+  transition: opacity 400ms ease;
+}
+
+.cursor-glow[data-visible] {
+  opacity: 0.4;
+  transition:
+    opacity 400ms ease,
+    transform 450ms var(--motion-ease);
+}
+
+.balance {
+  text-wrap: balance;
+}
+
+.max-w-content {
+  max-width: 1440px;
+}
+
+/* Tinted sections melt into their neighbours instead of ending on a hard edge. */
+.section-band {
+  --band: color-mix(in srgb, var(--color-bg-elevated) 40%, transparent);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--band) 7rem,
+    var(--band) calc(100% - 7rem),
+    transparent
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Hero to About: separation through depth, not contrast
+ *
+ * The hero falls away into a deeper black. About rises over it as a
+ * slightly lighter surface with a soft curved horizon for its edge, and
+ * brings its own texture and light. Only near-black tones change.
+ * ------------------------------------------------------------------ */
+:root {
+  --color-bg-deep: #060608;
+  --color-bg-raised: #0f0f12;
+  --surface-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.028 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.hero-scene::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 60%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--color-bg-deep) 55%, transparent) 50%,
+    var(--color-bg-deep) 80%
+  );
+}
+
+.about-chapter {
+  --rise: 3rem; /* how far the surface overlaps the hero */
+  --crest: 14rem; /* height of the curved top; sets the curve's depth */
+  --light-at: 50% 52rem;
+  /* Continues the hero's deep tone under the curve, so its corners never show a step. */
+  background: linear-gradient(
+    var(--color-bg-deep) calc(var(--crest) + 2rem),
+    transparent calc(var(--crest) + 2rem)
+  );
+}
+
+@media (min-width: 640px) {
+  .about-chapter {
+    --rise: 5rem;
+    --crest: 22rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .about-chapter {
+    --light-at: 76% 33rem;
+  }
+}
+
+.about-depth,
+.about-depth > * {
+  position: absolute;
+  pointer-events: none;
+}
+
+.about-depth {
+  inset: 0;
+  z-index: -1;
+}
+
+.about-crest,
+.about-body {
+  inset-inline: 0;
+  background: var(--surface-noise), var(--color-bg-raised);
+}
+
+.about-crest {
+  top: calc(var(--rise) * -1);
+  height: var(--crest);
+  mask-image: radial-gradient(
+    90% 100% at 50% 100%,
+    #000 86%,
+    rgb(0 0 0 / 0.55) 93%,
+    transparent 100%
+  );
+}
+
+/* Tone melts back to the page before the next section's band begins. */
+.about-body {
+  top: calc(var(--crest) - var(--rise) - 1px);
+  bottom: 0;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 16rem), transparent);
+}
+
+/* A low light behind the portrait... */
+.about-ambient {
+  inset-inline: 0;
+  top: 0;
+  height: 70rem;
+  background: radial-gradient(
+    36rem 32rem at var(--light-at),
+    color-mix(in srgb, var(--color-accent) 4%, transparent),
+    transparent
+  );
+}
+
+/* ...and a faint dawn on the horizon. Its box fits the glow, so nothing clips to an edge. */
+.about-ambient::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: calc(var(--rise) * -1 - 12rem);
+  height: 24rem;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-accent) 4.5%, transparent),
+    transparent
+  );
+}
+
+/* The arch's drafting grid, carried faintly out onto the surface. */
+.about-drafting {
+  --line: rgb(244 242 247 / 0.028);
+  inset-inline: 0;
+  top: 0;
+  height: 70rem;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(38rem 30rem at var(--light-at), #000, transparent);
+}
+
+/* ------------------------------------------------------------------ *
+ * The Journey
+ * ------------------------------------------------------------------ */
+
+/* A low light at the current role, the same kind About uses behind the portrait. */
+.journey-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    46rem 34rem at 30% 28rem,
+    color-mix(in srgb, var(--color-accent) 3.5%, transparent),
+    transparent
+  );
+}
+
+/* The rail: brightest at the present, fading back toward the start. */
+.journey-rail::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-accent) 70%, transparent),
+    var(--color-border-strong) 35%,
+    var(--color-border) 90%,
+    transparent
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Selected Work
+ * ------------------------------------------------------------------ */
+
+/* A low light behind each project visual. */
+.work-visual::before {
+  content: "";
+  position: absolute;
+  inset: -5rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-accent) 6%, transparent),
+    transparent
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Section background rhythm
+ *
+ * Work and Testimonials join the elevated plateau of Journey and Skills
+ * via section-band (added in their component classNames). Each section
+ * gains its own ambient light placement so consecutive elevated sections
+ * still feel distinct. Contact sits on the base tone with a centred glow —
+ * a brief clearing before the footer. The footer deepens to the page's
+ * lowest register.
+ * ------------------------------------------------------------------ */
+
+/* Testimonials: a soft ambient light from the top-right, mirroring
+   Journey's left-side glow to create a counterpoint rather than a copy. */
+.testimonials-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    52rem 40rem at 72% 18rem,
+    color-mix(in srgb, var(--color-accent) 2.8%, transparent),
+    transparent
+  );
+}
+
+/* Contact: a centred ambient glow, closing the atmosphere inward. */
+.contact-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    64rem 50rem at 50% 60%,
+    color-mix(in srgb, var(--color-accent) 3.2%, transparent),
+    transparent
+  );
+}
+
+/* Footer: deepest register — the page's visual floor. */
+.footer-scene {
+  background: var(--color-bg-deep);
+}
+
+/* ------------------------------------------------------------------ *
+ * Entrance and reveal system
+ *
+ * Reveals are CSS animations, so they never fight an element's own
+ * hover transitions, and `backwards` fill hands control back to the
+ * element as soon as they finish. Everything sits behind these media
+ * conditions, so print, no-JS and reduced-motion visitors simply get
+ * the content in its final state.
+ * ------------------------------------------------------------------ */
+@keyframes motion-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--motion-dist), 0) scale(var(--motion-from-scale, 1));
+  }
+}
+
+@keyframes motion-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Hero: plays from the first paint, before hydration, once per page load. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  [data-hero] {
+    --motion-from-scale: 0.97;
+    transform-origin: 0 100%;
+    animation: motion-rise 800ms var(--motion-ease)
+      calc(var(--hero-order, 0) * 90ms + 60ms) backwards;
+  }
+  [data-hero="1"] {
+    --hero-order: 1;
+  }
+  [data-hero="2"] {
+    --hero-order: 2;
+  }
+  [data-hero="3"] {
+    --hero-order: 3;
+  }
+  [data-hero="4"] {
+    --hero-order: 4;
+  }
+  [data-hero="5"] {
+    --hero-order: 5;
+  }
+  /* Nav and watermark share the sequence but only fade, as they are chrome and backdrop. */
+  [data-hero="fade"] {
+    --motion-dist: 0px;
+    --motion-from-scale: 1;
+    animation-duration: 1100ms;
+  }
+}
+
+/* Hero text leans toward the cursor. `--hero-pointer-x/y` come from HeroParallax and
+   stay unset on touch or reduced motion. Uses `translate`, not `transform`, so it
+   combines with the entrance and scroll animations on the same elements. */
+.hero-parallax {
+  translate: calc(var(--hero-pointer-x, 0) * 14px) calc(var(--hero-pointer-y, 0) * 14px);
+  transition: translate 700ms var(--motion-ease);
+}
+
+/* Scroll reveals. `scripting: enabled` means no-JS visitors never see hidden content. */
+@media screen and (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+  }
+
+  /* If the controller never boots (slow or failed JS), content still appears. */
+  html:not([data-motion="ready"]) [data-reveal]:not([data-revealed]) {
+    animation: motion-failsafe 400ms linear 3s forwards;
+  }
+
+  [data-revealed="animate"] {
+    animation: motion-rise var(--motion-dur) var(--motion-ease)
+      calc(var(--reveal-order, 0) * var(--motion-stagger)) backwards;
+  }
+
+  /* Larger surfaces (cards, panels, illustrations) get a soft scale as well. */
+  [data-reveal="soft"] {
+    --motion-from-scale: 0.97;
+  }
+
+  /* Line illustrations draw themselves in as their parent reveals. */
+  [data-revealed="animate"] .ill-draw {
+    animation: ill-draw 1100ms var(--motion-ease)
+      calc(var(--reveal-order, 0) * var(--motion-stagger) + 120ms) backwards;
+  }
+  [data-revealed="animate"] .ill-fade {
+    animation: ill-fade 500ms ease
+      calc(var(--reveal-order, 0) * var(--motion-stagger) + 500ms) backwards;
+  }
+}
+
+@keyframes ill-draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ill-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Accent overlay that traces a line of an illustration on hover. */
+.ill-trace {
+  stroke: var(--color-accent);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition:
+    stroke-dashoffset 800ms var(--motion-ease),
+    opacity 120ms ease;
+}
+
+@media (hover: hover) {
+  .group:hover .ill-trace {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* The accent stands behind the dark suit, with a faint drafting grid on top. */
+.portrait-arch {
+  --grid-line: color-mix(in srgb, var(--color-accent-ink) 9%, transparent);
+  background-color: var(--color-accent);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Scroll-linked continuity
+ *
+ * Runs on the browser's scroll timeline, with no scroll listeners or
+ * per-frame JS. Browsers without support just show the static design.
+ * ------------------------------------------------------------------ */
+@supports (animation-timeline: view()) {
+  @media screen and (prefers-reduced-motion: no-preference) {
+    /* Hero hands over to About: the content lifts away, the watermark lingers. */
+    .hero-scene {
+      view-timeline: --hero block;
+    }
+    .hero-exit,
+    .hero-drift {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --hero;
+      animation-range: exit 0% exit 100%;
+    }
+    .hero-exit {
+      animation-name: hero-exit;
+    }
+    .hero-drift {
+      display: inline-block;
+      animation-name: hero-drift;
+    }
+
+    /* The horizon rises a little faster than the page, and About's light comes up with it. */
+    .about-crest {
+      animation: about-crest-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+    .about-ambient {
+      animation: about-light-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+
+    /* The name that opens the page rises back in to close it. */
+    .footer-wordmark {
+      animation: wordmark-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
+
+@keyframes hero-exit {
+  to {
+    opacity: 0.2;
+    transform: translate3d(0, -40px, 0);
+  }
+}
+
+@keyframes hero-drift {
+  to {
+    opacity: 0.35;
+    transform: translate3d(0, 60px, 0) scale(1.03);
+  }
+}
+
+@keyframes about-crest-rise {
+  from {
+    transform: translate3d(0, 4rem, 0);
+  }
+}
+
+@keyframes about-light-up {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes wordmark-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40%, 0);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Interaction system
+ *
+ *   .btn + .btn-primary    filled pill: lifts and takes the accent colour
+ *   .btn + .btn-secondary  outlined pill: fills in, stays in place
+ *   .link                  text link: underline draws from the left
+ *   .pressable             pressed state for anything clickable
+ *   .nudge-x/-y/-ne        icon moves toward where the link goes
+ *
+ * Tailwind's hover variant and the (hover: hover) blocks below keep
+ * touch devices from getting stuck in a hover state.
+ * ------------------------------------------------------------------ */
+.btn,
+.pressable,
+.card-lift,
+.nudge-x,
+.nudge-y,
+.nudge-ne {
+  transition:
+    transform var(--motion-dur-ui) var(--motion-ease),
+    background-color var(--motion-dur-ui) ease,
+    border-color var(--motion-dur-ui) ease,
+    color var(--motion-dur-ui) ease;
+}
+
+.nudge-ne {
+  display: inline-block;
+}
+
+.link {
+  position: relative;
+  transition: color var(--motion-dur-ui) ease,
+    transform var(--motion-dur-ui) var(--motion-ease);
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 300ms var(--motion-ease);
+  pointer-events: none;
+}
+
+.link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+
+.btn-primary:focus-visible {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.btn-secondary:focus-visible {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-bg);
+}
+
+@media (hover: hover) {
+  .btn-primary:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-bg);
+  }
+  .link:hover::after {
+    transform: scaleX(1);
+    transform-origin: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @media (hover: hover) {
+    .btn-primary:hover {
+      transform: translate3d(0, -2px, 0);
+    }
+    .card-lift:hover {
+      transform: translate3d(0, -3px, 0);
+    }
+    .group:hover .nudge-x {
+      transform: translate3d(3px, 0, 0);
+    }
+    .group:hover .nudge-y {
+      transform: translate3d(0, 3px, 0);
+    }
+    .group:hover .nudge-ne {
+      transform: translate3d(2px, -2px, 0);
+    }
+  }
+
+  .group:focus-visible .nudge-x {
+    transform: translate3d(3px, 0, 0);
+  }
+  .group:focus-visible .nudge-y {
+    transform: translate3d(0, 3px, 0);
+  }
+  .group:focus-visible .nudge-ne {
+    transform: translate3d(2px, -2px, 0);
+  }
+
+  .btn:active,
+  .btn-primary:active,
+  .pressable:active {
+    transform: scale(0.97);
+    transition-duration: 80ms;
+  }
+
+  /* Confirms the copy-email action. */
+  .icon-pop {
+    animation: icon-pop 260ms var(--motion-ease);
+  }
+}
+
+@keyframes icon-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+/* Full-height mobile drawer: panel slides in from the right; items stagger after. */
+.mobile-menu {
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 480ms;
+}
+
+.mobile-menu[data-open="true"] {
+  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.mobile-menu-backdrop {
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+
+.mobile-menu[data-open="true"] .mobile-menu-backdrop {
+  opacity: 1;
+}
+
+.mobile-menu-panel {
+  transform: translate3d(100%, 0, 0);
+  transition: transform 480ms var(--motion-ease);
+  will-change: transform;
+}
+
+.mobile-menu[data-open="true"] .mobile-menu-panel {
+  transform: none;
+}
+
+.mobile-menu-item {
+  opacity: 0;
+  transform: translate3d(1.5rem, 0, 0);
+  transition:
+    opacity 420ms var(--motion-ease),
+    transform 420ms var(--motion-ease);
+  transition-delay: 0ms;
+}
+
+.mobile-menu[data-open="true"] .mobile-menu-item {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(160ms + var(--i, 0) * 70ms);
+}
