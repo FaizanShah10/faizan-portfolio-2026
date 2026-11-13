@@ -194,8 +194,8 @@ body {
 }
 
 .about-chapter {
-  --rise: 3rem; /* how far the surface overlaps the hero */
-  --crest: 14rem; /* height of the curved top; sets the curve's depth */
+  --rise: 2rem; /* how far the surface overlaps the hero */
+  --crest: 9rem; /* height of the curved top; sets the curve's depth */
   --light-at: 50% 52rem;
   /* Continues the hero's deep tone under the curve, so its corners never show a step. */
   background: linear-gradient(

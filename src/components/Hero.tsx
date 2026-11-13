@@ -8,7 +8,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="hero-scene relative flex min-h-[100svh] flex-col overflow-hidden px-6 pb-16 pt-28 sm:px-10 sm:pb-20 sm:pt-32"
+      className="hero-scene relative flex min-h-[88svh] flex-col overflow-hidden px-6 pb-10 pt-16 sm:min-h-[100svh] sm:px-10 sm:pb-20 sm:pt-32"
     >
       <HeroParallax />
 
@@ -23,9 +23,9 @@ export function Hero() {
         </span>
       </div>
 
-      <div className="hero-parallax hero-exit relative mx-auto flex w-full max-w-content flex-1 flex-col pb-[6vh]">
+      <div className="hero-parallax hero-exit relative mx-auto flex w-full max-w-content flex-1 flex-col pb-2 sm:pb-[6vh]">
         {/* Top-left: badge + headline */}
-        <div className="flex flex-1 flex-col justify-center pt-6 lg:max-w-[58%] lg:justify-end lg:pb-8 lg:pt-10">
+        <div className="flex flex-1 flex-col justify-center pt-2 sm:pt-6 lg:max-w-[58%] lg:justify-end lg:pb-8 lg:pt-10">
           <p
             data-hero="1"
             className="mb-5 text-xs font-medium uppercase tracking-[0.2em] text-accent sm:text-sm"
@@ -53,7 +53,7 @@ export function Hero() {
         </div>
 
         {/* Bottom-right: bio + CTAs */}
-        <div className="mt-12 flex max-w-md flex-col gap-7 self-start lg:mt-0 lg:ml-auto lg:self-end">
+        <div className="mt-8 flex max-w-md flex-col gap-7 self-start sm:mt-12 lg:mt-0 lg:ml-auto lg:self-end">
           <p
             data-hero="4"
             className="text-[15px] leading-relaxed text-ink/90 sm:text-base"

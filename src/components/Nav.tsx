@@ -101,7 +101,7 @@ export function Nav() {
               />
               <span
                 aria-hidden="true"
-                className={`absolute h-[1.5px] w- 9 origin-center bg-ink transition-transform duration-300 ease-[var(--motion-ease)] ${
+                className={`absolute h-[1.5px] w-9 origin-center bg-ink transition-transform duration-300 ease-[var(--motion-ease)] ${
                   open ? "translate-y-0 -rotate-45" : "translate-y-[4px]"
                 }`}
               />

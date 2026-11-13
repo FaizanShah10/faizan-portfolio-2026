@@ -27,7 +27,7 @@ export function About() {
   return (
     <section
       id="about"
-      className="about-chapter relative isolate px-6 pt-28 pb-20 sm:px-10  sm:pb-28 lg:pt-26"
+      className="about-chapter relative isolate px-6 pt-16 pb-20 sm:px-10 sm:pt-28 sm:pb-28 lg:pt-26"
     >
       {/* The raised surface that rises over the hero (see globals.css). */}
       <div aria-hidden="true" className="about-depth">
